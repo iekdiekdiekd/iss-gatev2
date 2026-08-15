@@ -2,17 +2,21 @@ const express = require('express');
 const router = express.Router();
 const { db } = require('../database/init');
 const { authMiddleware } = require('../middleware/auth');
-const { generateXrayConfig, restartXray } = require('../services/xray');
+const { generateXrayConfig, restartXray, testConfig } = require('../services/xray');
 const { generateWireGuardKeys, setupWireGuard, generateWireGuardLink } = require('../services/wireguard');
 const crypto = require('crypto');
 const { exec } = require('child_process');
 const fs = require('fs');
 
-// تابع ساخت لینک VLESS
+// تابع ساخت لینک VLESS صحیح
 function buildVlessLink({ uuid, domain, port, network, streamSettings, tlsSettings, realityEnabled, tlsEnabled, name }) {
     let link = `vless://${uuid}@${domain}:${port}`;
-    const params = ['encryption=none'];
+    const params = [];
     
+    // پارامترهای پایه
+    params.push('encryption=none');
+    
+    // امنیت
     if (realityEnabled) {
         params.push('security=reality');
         if (streamSettings.realitySettings) {
@@ -31,8 +35,10 @@ function buildVlessLink({ uuid, domain, port, network, streamSettings, tlsSettin
         params.push('security=none');
     }
     
+    // نوع شبکه
     params.push(`type=${network}`);
     
+    // تنظیمات مخصوص شبکه
     if (network === 'ws') {
         const wsSettings = streamSettings.wsSettings || {};
         if (wsSettings.host) params.push(`host=${encodeURIComponent(wsSettings.host)}`);
@@ -48,8 +54,12 @@ function buildVlessLink({ uuid, domain, port, network, streamSettings, tlsSettin
     }
     
     link += '?' + params.join('&');
-    const configName = name + (realityEnabled ? '-Reality' : '') + (tlsEnabled ? '-TLS' : '') + (network === 'ws' ? '-WS' : network === 'xhttp' ? '-XHTTP' : '');
+    const configName = name + 
+        (realityEnabled ? '-Reality' : '') +
+        (tlsEnabled ? '-TLS' : '') +
+        (network === 'ws' ? '-WS' : network === 'xhttp' ? '-XHTTP' : network === 'grpc' ? '-gRPC' : '-TCP');
     link += `#${encodeURIComponent(configName)}`;
+    
     return link;
 }
 
@@ -64,18 +74,6 @@ router.get('/', authMiddleware, (req, res) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(inbounds);
     });
-});
-
-// GET inbounds by user
-router.get('/user/:userId', authMiddleware, (req, res) => {
-    db.all(
-        'SELECT * FROM inbounds WHERE user_id = ? AND is_active = 1',
-        [req.params.userId],
-        (err, inbounds) => {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json(inbounds);
-        }
-    );
 });
 
 // POST create inbound
@@ -109,25 +107,37 @@ router.post('/', authMiddleware, (req, res) => {
         
         settings = { uuid, alterId: 0, flow: flow || 'xtls-rprx-vision' };
         
+        // تنظیمات شبکه
         if (network === 'ws') {
             streamSettings = {
                 network: 'ws',
-                wsSettings: { path: path || '/vless-ws', host: host || domain, headers: { Host: host || domain } }
+                wsSettings: {
+                    path: path || '/vless-ws',
+                    host: host || domain,
+                    headers: { Host: host || domain }
+                }
             };
         } else if (network === 'xhttp') {
             streamSettings = {
                 network: 'xhttp',
-                xhttpSettings: { path: xhttp_path || '/vless-xhttp', host: xhttp_host || domain, mode: xhttp_mode || 'auto' }
+                xhttpSettings: {
+                    path: xhttp_path || '/vless-xhttp',
+                    host: xhttp_host || domain,
+                    mode: xhttp_mode || 'auto'
+                }
             };
         } else if (network === 'grpc') {
             streamSettings = {
                 network: 'grpc',
-                grpcSettings: { serviceName: path || '/vless-grpc' }
+                grpcSettings: {
+                    serviceName: path || 'vless-grpc'
+                }
             };
         } else {
             streamSettings = { network: 'tcp' };
         }
         
+        // TLS
         if (tls_enabled === 'true' || tls_enabled === true) {
             tlsSettings = {
                 security: tls_type || 'tls',
@@ -137,12 +147,18 @@ router.post('/', authMiddleware, (req, res) => {
                     allowInsecure: false
                 }
             };
-            streamSettings = { ...streamSettings, security: tls_type || 'tls', tlsSettings: tlsSettings.tlsSettings };
+            streamSettings = { 
+                ...streamSettings, 
+                security: tls_type || 'tls', 
+                tlsSettings: tlsSettings.tlsSettings 
+            };
         }
         
+        // Reality
         if (reality_enabled === 'true' || reality_enabled === true) {
             const shortIds = reality_short_ids || crypto.randomBytes(8).toString('hex');
             const privateKey = reality_private_key || crypto.randomBytes(32).toString('base64');
+            
             streamSettings = {
                 ...streamSettings,
                 security: 'reality',
@@ -150,20 +166,22 @@ router.post('/', authMiddleware, (req, res) => {
                     publicKey: reality_public_key || '',
                     privateKey: privateKey,
                     shortIds: [shortIds],
-                    serverName: reality_server_name || domain,
+                    serverName: reality_server_name || 'cloudflare.com',
                     fingerprint: reality_fingerprint || 'chrome',
                     show: true
                 }
             };
+            
             req.realitySettings = {
                 public_key: reality_public_key || '',
                 private_key: privateKey,
                 short_ids: shortIds,
-                server_name: reality_server_name || domain,
+                server_name: reality_server_name || 'cloudflare.com',
                 fingerprint: reality_fingerprint || 'chrome'
             };
         }
         
+        // ساخت لینک
         link = buildVlessLink({
             uuid, domain, port, network, streamSettings, tlsSettings,
             realityEnabled: reality_enabled === 'true' || reality_enabled === true,
@@ -171,10 +189,14 @@ router.post('/', authMiddleware, (req, res) => {
             name
         });
         
+        console.log('🔗 Generated VLESS link:', link);
+        
     } else if (protocol === 'mtproto') {
         const mtprotoSecret = secret || crypto.randomBytes(16).toString('hex');
         settings = { secret: mtprotoSecret };
         link = `tg://proxy?server=${domain}&port=${port}&secret=${mtprotoSecret}`;
+        console.log('🔗 Generated MTProto link:', link);
+        
     } else if (protocol === 'wireguard') {
         const keys = generateWireGuardKeys();
         const clientPrivateKey = generateWireGuardKeys().privateKey;
@@ -186,8 +208,10 @@ router.post('/', authMiddleware, (req, res) => {
             allowed_ips: allowed_ips || '0.0.0.0/0'
         };
         link = generateWireGuardLink({ ...req.body, settings, name, port }, { username: 'user' });
+        console.log('🔗 Generated WireGuard config');
     }
     
+    // ذخیره در دیتابیس
     const tlsJSON = JSON.stringify(tlsSettings || {});
     const streamJSON = JSON.stringify(streamSettings || {});
     
@@ -196,8 +220,12 @@ router.post('/', authMiddleware, (req, res) => {
          VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
         [user_id, name, protocol, network_type || 'ws', port, JSON.stringify(settings), streamJSON, tlsJSON],
         function(err) {
-            if (err) return res.status(500).json({ error: err.message });
+            if (err) {
+                console.error('❌ DB Error:', err);
+                return res.status(500).json({ error: err.message });
+            }
             
+            // ذخیره Reality settings
             if (protocol === 'vless' && req.realitySettings) {
                 const r = req.realitySettings;
                 db.run(
@@ -208,14 +236,29 @@ router.post('/', authMiddleware, (req, res) => {
                 );
             }
             
+            // راه‌اندازی Xray یا WireGuard
             if (protocol === 'wireguard') {
                 setupWireGuard({ id: this.lastID, name, port, settings });
             } else {
-                generateXrayConfig();
-                restartXray();
+                generateXrayConfig().then(() => {
+                    restartXray();
+                    // تست کانفیگ
+                    setTimeout(() => testConfig(), 1000);
+                });
             }
             
-            res.status(201).json({ id: this.lastID, user_id, name, protocol, network_type: network_type || 'ws', port, link, settings, stream_settings: streamSettings, tls_settings: tlsSettings });
+            res.status(201).json({
+                id: this.lastID,
+                user_id,
+                name,
+                protocol,
+                network_type: network_type || 'ws',
+                port,
+                link: link,
+                settings: settings,
+                stream_settings: streamSettings,
+                tls_settings: tlsSettings
+            });
         }
     );
 });
@@ -224,15 +267,19 @@ router.post('/', authMiddleware, (req, res) => {
 router.delete('/:id', authMiddleware, (req, res) => {
     db.get('SELECT * FROM inbounds WHERE id = ?', [req.params.id], (err, inbound) => {
         if (err || !inbound) return res.status(404).json({ error: 'Not found' });
+        
         if (inbound.protocol === 'wireguard') {
             exec(`wg-quick down ${inbound.name}`, () => {
                 const configPath = `/etc/wireguard/${inbound.name}.conf`;
                 if (fs.existsSync(configPath)) fs.unlinkSync(configPath);
             });
         }
+        
         db.run('DELETE FROM inbounds WHERE id = ?', [req.params.id], function(err) {
             if (err) return res.status(500).json({ error: err.message });
-            if (inbound.protocol !== 'wireguard') { generateXrayConfig(); restartXray(); }
+            if (inbound.protocol !== 'wireguard') {
+                generateXrayConfig().then(() => restartXray());
+            }
             res.json({ success: true });
         });
     });
