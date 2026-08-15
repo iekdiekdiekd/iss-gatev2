@@ -1,12 +1,11 @@
 {
   "name": "isspanel",
   "version": "3.0.0",
-  "description": "Auto-deploy panel for VLESS (WS/XHTTP/TLS/Reality), MTProto, and WireGuard",
+  "description": "ISSPanel for Railway",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "postinstall": "node scripts/setup.js",
-    "build": "npm install"
+    "postinstall": "node scripts/init-db.js"
   },
   "dependencies": {
     "express": "^4.18.2",

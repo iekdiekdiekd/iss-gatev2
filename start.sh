@@ -2,19 +2,17 @@
 
 echo "🚀 Starting ISSPanel on Railway..."
 
-# تنظیم متغیرهای محیطی
 export NODE_ENV=production
 export PORT=${PORT:-3000}
 export DB_PATH=${DB_PATH:-./database/iss.db}
 
-# ایجاد پوشه‌های مورد نیاز
-mkdir -p database logs
-mkdir -p /tmp
+# ایجاد پوشه‌ها
+mkdir -p database logs /tmp
 
-# بررسی و ایجاد دیتابیس
+# اطمینان از وجود دیتابیس
 if [ ! -f "$DB_PATH" ]; then
     echo "📊 Creating database..."
-    node scripts/setup.js
+    node scripts/init-db.js
 fi
 
 # نمایش اطلاعات
