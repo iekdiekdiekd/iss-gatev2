@@ -962,84 +962,117 @@
             document.getElementById('realityFields').style.display = security === 'reality' ? 'block' : 'none';
         }
 
+// جایگزین تابع addInbound با این:
+
         function addInbound() {
-            const data = {
-                user_id: parseInt(document.getElementById('userId').value),
-                name: document.getElementById('inboundName').value.trim(),
-                protocol: document.getElementById('protocol').value,
-                port: parseInt(document.getElementById('port').value)
-            };
-
-            if (!data.name) {
-                showToast('❌ نام اینباند الزامی است', 'error');
-                return;
-            }
-            if (!data.port || isNaN(data.port)) {
-                showToast('❌ پورت معتبر وارد کنید', 'error');
-                return;
-            }
-
-
-            if (data.protocol === 'vless') {
-                data.network_type = document.getElementById('networkType').value;
-                data.flow = document.getElementById('flow').value;
-
-                if (data.network_type === 'ws') {
-                    data.path = document.getElementById('wsPath').value;
-                    data.host = document.getElementById('wsHost').value || window.location.hostname;
-                } else if (data.network_type === 'xhttp') {
-                    data.xhttp_path = document.getElementById('xhttpPath').value;
-                    data.xhttp_host = document.getElementById('xhttpHost').value || window.location.hostname;
-                    data.xhttp_mode = document.getElementById('xhttpMode').value;
-                } else if (data.network_type === 'grpc') {
-                    data.path = document.getElementById('grpcService').value;
-                }
-
-                const security = document.getElementById('securityType').value;
-                if (security === 'tls') {
-                    data.tls_enabled = true;
-                    data.tls_type = 'tls';
-                    data.tls_server_name = document.getElementById('tlsServerName').value || window.location.hostname;
-                    data.tls_fingerprint = document.getElementById('tlsFingerprint').value;
-                    data.tls_alpn = document.getElementById('tlsAlpn').value; // اضافه شد
-                } else if (security === 'reality') {
-                    data.reality_enabled = true;
-                    data.reality_server_name = document.getElementById('realityServerName').value || 'cloudflare.com';
-                    data.reality_fingerprint = document.getElementById('realityFingerprint').value;
-                    data.reality_public_key = document.getElementById('realityPublicKey').value || '';
-                    data.reality_short_ids = document.getElementById('realityShortIds').value || '';
-                    data.reality_alpn = document.getElementById('realityAlpn').value; // اضافه شد
-                }
-            } else if (data.protocol === 'mtproto') {
-                const secret = document.getElementById('mtprotoSecret').value;
-                if (secret) data.secret = secret;
-            } else if (data.protocol === 'wireguard') {
-                data.address = document.getElementById('wgAddress').value;
-                data.allowed_ips = document.getElementById('wgAllowedIPs').value;
-                data.client_address = document.getElementById('wgClientAddress').value;
-            }
-
-            fetch('/api/inbounds', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.error) {
-                        showToast('❌ ' + data.error, 'error');
-                        return;
-                    }
-                    closeModal();
-                    showToast('✅ اینباند با موفقیت ایجاد شد!', 'success');
-                    loadInbounds();
-                })
-                .catch(err => {
-                    showToast('❌ خطا در ایجاد اینباند', 'error');
-                    console.error(err);
-                });
+    const user_id = document.getElementById('userId').value;
+    const name = document.getElementById('inboundName').value.trim();
+    const protocol = document.getElementById('protocol').value;
+    const port = document.getElementById('port').value;
+    
+    // Validation
+    if (!name) {
+        showToast('❌ نام اینباند الزامی است', 'error');
+        return;
+    }
+    if (!port || isNaN(port) || parseInt(port) <= 0) {
+        showToast('❌ پورت معتبر وارد کنید', 'error');
+        return;
+    }
+    
+    let data = { user_id, name, protocol, port: parseInt(port) };
+    
+    if (protocol === 'vless') {
+        data.network_type = document.getElementById('networkType').value;
+        data.flow = document.getElementById('flow').value;
+        
+        if (data.network_type === 'ws') {
+            data.path = document.getElementById('wsPath').value;
+            data.host = document.getElementById('wsHost').value || window.location.hostname;
+        } else if (data.network_type === 'xhttp') {
+            data.xhttp_path = document.getElementById('xhttpPath').value;
+            data.xhttp_host = document.getElementById('xhttpHost').value || window.location.hostname;
+            data.xhttp_mode = document.getElementById('xhttpMode').value;
+        } else if (data.network_type === 'grpc') {
+            data.path = document.getElementById('grpcService').value;
         }
 
+        const security = document.getElementById('securityType').value;
+        if (security === 'tls') {
+            data.tls_enabled = true;
+            data.tls_type = 'tls';
+            data.tls_server_name = document.getElementById('tlsServerName').value || window.location.hostname;
+            data.tls_fingerprint = document.getElementById('tlsFingerprint').value;
+            data.tls_alpn = document.getElementById('tlsAlpn').value;
+        } else if (security === 'reality') {
+            data.reality_enabled = true;
+            data.reality_server_name = document.getElementById('realityServerName').value || 'cloudflare.com';
+            data.reality_fingerprint = document.getElementById('realityFingerprint').value;
+            data.reality_public_key = document.getElementById('realityPublicKey').value || '';
+            data.reality_short_ids = document.getElementById('realityShortIds').value || '';
+            data.reality_alpn = document.getElementById('realityAlpn').value;
+        }
+    } else if (protocol === 'mtproto') {
+        const secret = document.getElementById('mtprotoSecret').value;
+        if (secret) data.secret = secret;
+    } else if (protocol === 'wireguard') {
+        data.address = document.getElementById('wgAddress').value;
+        data.allowed_ips = document.getElementById('wgAllowedIPs').value;
+        data.client_address = document.getElementById('wgClientAddress').value;
+    }
+
+    console.log('📤 Sending data:', data);
+
+    // دکمه رو غیرفعال کن تا از ارسال مجدد جلوگیری بشه
+    const submitBtn = document.querySelector('.btn-submit');
+    submitBtn.textContent = '⏳ در حال ایجاد...';
+    submitBtn.disabled = true;
+
+    fetch('/api/inbounds', {
+        method: 'POST',
+        headers: { 
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(async response => {
+        const text = await response.text();
+        console.log('📥 Response status:', response.status);
+        console.log('📥 Response body:', text);
+        
+        if (!response.ok) {
+            try {
+                const json = JSON.parse(text);
+                throw new Error(json.error || `HTTP ${response.status}`);
+            } catch (e) {
+                throw new Error(`HTTP ${response.status}: ${text.substring(0, 100)}`);
+            }
+        }
+        
+        try {
+            return JSON.parse(text);
+        } catch (e) {
+            throw new Error('Invalid JSON response from server');
+        }
+    })
+    .then(data => {
+        closeModal();
+        showToast('✅ اینباند با موفقیت ایجاد شد!', 'success');
+        loadInbounds();
+        if (data.link) {
+            console.log('🔗 Generated link:', data.link);
+        }
+    })
+    .catch(error => {
+        console.error('❌ Error:', error);
+        showToast('❌ خطا: ' + error.message, 'error');
+    })
+    .finally(() => {
+        submitBtn.textContent = '✅ ایجاد اینباند';
+        submitBtn.disabled = false;
+    });
+}
         function deleteInbound(id) {
             if (!confirm('آیا از حذف این اینباند مطمئن هستید؟')) return;
             fetch(`/api/inbounds/${id}`, { method: 'DELETE' })

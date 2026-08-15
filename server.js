@@ -126,4 +126,24 @@ app.listen(PORT, () => {
     console.log(`🔍 Test Xray: http://${domain}/test-xray`);
 });
 
+
+// اضافه کنید به انتهای server.js (قبل از module.exports)
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+    console.error('❌ Global error handler:', err);
+    console.error('Stack:', err.stack);
+    res.status(500).json({ 
+        error: 'Internal server error',
+        message: err.message,
+        stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+    });
+});
+
+// 404 handler
+app.use((req, res) => {
+    console.log(`❌ 404: ${req.method} ${req.url}`);
+    res.status(404).json({ error: 'Not found' });
+});
+
 module.exports = { app, db };
