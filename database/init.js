@@ -53,7 +53,7 @@ function initDatabase() {
             if (err) console.error('Error creating inbounds table:', err.message);
         });
 
-        // جدول Reality
+        // ============ ایجاد جدول reality_settings ============
         db.run(`
             CREATE TABLE IF NOT EXISTS reality_settings (
                 inbound_id INTEGER PRIMARY KEY,
@@ -62,11 +62,15 @@ function initDatabase() {
                 short_ids TEXT,
                 server_name TEXT,
                 fingerprint TEXT,
-                alpn TEXT,  // اضافه شد
+                alpn TEXT,
                 FOREIGN KEY(inbound_id) REFERENCES inbounds(id) ON DELETE CASCADE
             )
         `, (err) => {
-            if (err) console.error('Error creating reality_settings table:', err.message);
+            if (err) {
+                console.error('Error creating reality_settings table:', err.message);
+            } else {
+                console.log('✅ reality_settings table created or already exists');
+            }
         });
 
         // ایجاد کاربر ادمین
