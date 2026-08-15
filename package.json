@@ -16,8 +16,7 @@
     "uuid": "^9.0.1",
     "dotenv": "^16.3.1",
     "cors": "^2.8.5",
-    "helmet": "^7.0.0",
-    "@stablelib/curve25519": "^1.0.3"
+    "helmet": "^7.0.0"
   },
   "engines": {
     "node": ">=18.0.0"
