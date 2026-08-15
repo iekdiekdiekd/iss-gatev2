@@ -1,6 +1,7 @@
 node_modules/
 database/iss.db
 database/iss.db-journal
+sessions/
 .env
 *.log
 *.conf

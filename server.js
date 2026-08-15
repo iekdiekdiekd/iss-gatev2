@@ -6,9 +6,12 @@ const helmet = require('helmet');
 const path = require('path');
 const fs = require('fs');
 
-// اطمینان از وجود پوشه دیتابیس
+// اطمینان از وجود پوشه‌ها
 if (!fs.existsSync('./database')) {
     fs.mkdirSync('./database', { recursive: true });
+}
+if (!fs.existsSync('./sessions')) {
+    fs.mkdirSync('./sessions', { recursive: true });
 }
 
 const { db, initDatabase } = require('./database/init');
@@ -21,21 +24,37 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
-app.use(helmet({ contentSecurityPolicy: false }));
-app.use(cors());
+app.use(helmet({ 
+    contentSecurityPolicy: false,
+    crossOriginEmbedderPolicy: false 
+}));
+app.use(cors({
+    origin: true,
+    credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
-// Session
+// Session Configuration - با ذخیره‌سازی در فایل
+const FileStore = require('session-file-store')(session);
+
 app.use(session({
-    secret: process.env.JWT_SECRET || 'secret-key',
+    store: new FileStore({
+        path: './sessions',
+        ttl: 86400, // 24 hours
+        retries: 0
+    }),
+    secret: process.env.JWT_SECRET || 'your-secret-key-change-this-in-production',
     resave: false,
     saveUninitialized: false,
-    cookie: { 
-        secure: process.env.NODE_ENV === 'production',
-        maxAge: 24 * 60 * 60 * 1000
-    }
+    cookie: {
+        secure: false, // در Railway از HTTPS استفاده می‌کنه ولی برای سادگی false
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000, // 24 hours
+        sameSite: 'lax'
+    },
+    name: 'isspanel.sid'
 }));
 
 // Routes
@@ -59,7 +78,7 @@ app.get('/health', (req, res) => {
     res.json({ status: 'ok', uptime: process.uptime(), timestamp: new Date().toISOString() });
 });
 
-// Initialize database and start
+// Initialize database
 console.log('📊 Initializing database...');
 initDatabase();
 

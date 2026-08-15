@@ -7,7 +7,10 @@ export PORT=${PORT:-3000}
 export DB_PATH=${DB_PATH:-./database/iss.db}
 
 # ایجاد پوشه‌ها
-mkdir -p database logs /tmp
+mkdir -p sessions database logs /tmp
+
+# اطمینان از دسترسی‌ها
+chmod 755 sessions database logs
 
 echo "✅ Starting panel on port $PORT..."
 if [ ! -z "$RAILWAY_PUBLIC_DOMAIN" ]; then

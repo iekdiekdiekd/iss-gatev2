@@ -14,6 +14,9 @@ RUN npm install --legacy-peer-deps
 
 COPY . .
 
+# ایجاد پوشه‌های مورد نیاز
+RUN mkdir -p sessions database logs /tmp
+
 EXPOSE 3000
 EXPOSE 10086-10186
 
