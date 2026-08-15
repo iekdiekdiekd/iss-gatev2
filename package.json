@@ -1,0 +1,25 @@
+{
+  "name": "isspanel",
+  "version": "3.0.0",
+  "description": "Auto-deploy panel for VLESS (WS/XHTTP/TLS/Reality), MTProto, and WireGuard",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "postinstall": "node scripts/setup.js",
+    "build": "npm install"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "sqlite3": "^5.1.6",
+    "express-session": "^1.17.3",
+    "bcrypt": "^5.1.1",
+    "uuid": "^9.0.1",
+    "dotenv": "^16.3.1",
+    "cors": "^2.8.5",
+    "helmet": "^7.0.0",
+    "@stablelib/curve25519": "^1.0.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

@@ -1,0 +1,10 @@
+node_modules/
+database/iss.db
+database/iss.db-journal
+.env
+*.log
+*.conf
+/tmp/
+.DS_Store
+*.swp
+*.swo
