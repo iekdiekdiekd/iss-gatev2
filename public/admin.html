@@ -978,20 +978,7 @@
                 showToast('❌ پورت معتبر وارد کنید', 'error');
                 return;
             }
-            if (security === 'tls') {
-                data.tls_enabled = true;
-                data.tls_type = 'tls';
-                data.tls_server_name = document.getElementById('tlsServerName').value || window.location.hostname;
-                data.tls_fingerprint = document.getElementById('tlsFingerprint').value;
-                data.tls_alpn = document.getElementById('tlsAlpn').value; // اضافه شد
-            } else if (security === 'reality') {
-                data.reality_enabled = true;
-                data.reality_server_name = document.getElementById('realityServerName').value || 'cloudflare.com';
-                data.reality_fingerprint = document.getElementById('realityFingerprint').value;
-                data.reality_public_key = document.getElementById('realityPublicKey').value || '';
-                data.reality_short_ids = document.getElementById('realityShortIds').value || '';
-                data.reality_alpn = document.getElementById('realityAlpn').value; // اضافه شد
-            }
+
 
             if (data.protocol === 'vless') {
                 data.network_type = document.getElementById('networkType').value;
@@ -1014,12 +1001,14 @@
                     data.tls_type = 'tls';
                     data.tls_server_name = document.getElementById('tlsServerName').value || window.location.hostname;
                     data.tls_fingerprint = document.getElementById('tlsFingerprint').value;
+                    data.tls_alpn = document.getElementById('tlsAlpn').value; // اضافه شد
                 } else if (security === 'reality') {
                     data.reality_enabled = true;
                     data.reality_server_name = document.getElementById('realityServerName').value || 'cloudflare.com';
                     data.reality_fingerprint = document.getElementById('realityFingerprint').value;
                     data.reality_public_key = document.getElementById('realityPublicKey').value || '';
                     data.reality_short_ids = document.getElementById('realityShortIds').value || '';
+                    data.reality_alpn = document.getElementById('realityAlpn').value; // اضافه شد
                 }
             } else if (data.protocol === 'mtproto') {
                 const secret = document.getElementById('mtprotoSecret').value;
