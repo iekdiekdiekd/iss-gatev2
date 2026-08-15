@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ورود - ISSPanel</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 40px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .login-container h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+            font-size: 24px;
+        }
+        .login-container .logo {
+            text-align: center;
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        .login-container .form-group {
+            margin-bottom: 20px;
+        }
+        .login-container .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        .login-container .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        .login-container .form-group input:focus {
+            border-color: #667eea;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        .login-container button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .login-container button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        .login-container button:active {
+            transform: translateY(0);
+        }
+        .error {
+            color: #dc3545;
+            text-align: center;
+            margin-top: 15px;
+            padding: 10px;
+            background: #f8d7da;
+            border-radius: 6px;
+            display: none;
+        }
+        .success {
+            color: #28a745;
+            text-align: center;
+            margin-top: 15px;
+            padding: 10px;
+            background: #d4edda;
+            border-radius: 6px;
+            display: none;
+        }
+        .login-footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #999;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">⚡</div>
+        <h2>ورود به ISSPanel</h2>
+        <form id="loginForm" onsubmit="handleLogin(event)">
+            <div class="form-group">
+                <label>👤 نام کاربری</label>
+                <input id="username" type="text" placeholder="نام کاربری خود را وارد کنید" required autofocus>
+            </div>
+            <div class="form-group">
+                <label>🔑 رمز عبور</label>
+                <input id="password" type="password" placeholder="رمز عبور خود را وارد کنید" required>
+            </div>
+            <button type="submit">ورود به پنل</button>
+            <div id="errorMessage" class="error"></div>
+            <div id="successMessage" class="success"></div>
+        </form>
+        <div class="login-footer">
+            <p>پنل مدیریت پیشرفته ISSPanel</p>
+        </div>
+    </div>
+
+    <script>
+        // بررسی وضعیت سشن
+        fetch('/api/auth/session')
+            .then(res => res.json())
+            .then(data => {
+                if (data.authenticated) {
+                    window.location.href = '/dashboard';
+                }
+            });
+
+        function handleLogin(event) {
+            event.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('errorMessage');
+            const successDiv = document.getElementById('successMessage');
+            
+            // مخفی کردن پیام‌های قبلی
+            errorDiv.style.display = 'none';
+            successDiv.style.display = 'none';
+            
+            if (!username || !password) {
+                errorDiv.textContent = '❌ لطفاً نام کاربری و رمز عبور را وارد کنید';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            // نمایش وضعیت در حال بارگذاری
+            const submitBtn = document.querySelector('button[type="submit"]');
+            submitBtn.textContent = '⏳ در حال ورود...';
+            submitBtn.disabled = true;
+            
+            fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                submitBtn.textContent = 'ورود به پنل';
+                submitBtn.disabled = false;
+                
+                if (data.success) {
+                    successDiv.textContent = '✅ ورود موفق! در حال انتقال به داشبورد...';
+                    successDiv.style.display = 'block';
+                    setTimeout(() => {
+                        window.location.href = '/dashboard';
+                    }, 1000);
+                } else {
+                    errorDiv.textContent = '❌ ' + (data.error || 'نام کاربری یا رمز عبور اشتباه است');
+                    errorDiv.style.display = 'block';
+                }
+            })
+            .catch(error => {
+                submitBtn.textContent = 'ورود به پنل';
+                submitBtn.disabled = false;
+                errorDiv.textContent = '❌ خطا در ارتباط با سرور. لطفاً دوباره تلاش کنید.';
+                errorDiv.style.display = 'block';
+                console.error('Login error:', error);
+            });
+        }
+
+        // Enter key support
+        document.getElementById('password').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('loginForm').dispatchEvent(new Event('submit'));
+            }
+        });
+    </script>
+</body>
+</html>

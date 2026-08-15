@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>داشبورد - ISSPanel</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .dashboard-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            text-align: center;
+        }
+        .stat-card .number {
+            font-size: 28px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .stat-card .label {
+            color: #888;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        .inbound-item {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            border-right: 4px solid #667eea;
+            transition: all 0.3s;
+        }
+        .inbound-item:hover {
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            transform: translateX(-5px);
+        }
+        .inbound-item[data-protocol="mtproto"] { border-right-color: #0088cc; }
+        .inbound-item[data-protocol="wireguard"] { border-right-color: #ff6b35; }
+        .inbound-item[data-network="xhttp"] { border-right-color: #007bff; }
+        .protocol-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+            margin: 0 5px;
+        }
+        .protocol-badge.vless { background: #667eea; }
+        .protocol-badge.mtproto { background: #0088cc; }
+        .protocol-badge.wireguard { background: #ff6b35; }
+        .network-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            background: #e9ecef;
+            color: #495057;
+            margin: 0 5px;
+        }
+        .network-badge.ws { background: #d4edda; color: #155724; }
+        .network-badge.xhttp { background: #cce5ff; color: #004085; }
+        .security-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            color: white;
+            margin: 0 5px;
+        }
+        .security-badge.reality { background: #dc3545; }
+        .security-badge.tls { background: #28a745; }
+        .security-badge.none { background: #6c757d; }
+        .config-link {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 6px;
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 13px;
+            border: 1px solid #e9ecef;
+            margin: 10px 0;
+            color: #333;
+        }
+        .inbound-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-download { background: #ff6b35; color: white; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .btn:active { transform: translateY(0); }
+        .btn-info { background: #17a2b8; color: white; }
+        .sub-box {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .sub-box code {
+            flex: 1;
+            word-break: break-all;
+            font-size: 13px;
+            background: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            border: 1px solid #dee2e6;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 25px;
+            background: #e9ecef;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-top: 10px;
+            position: relative;
+        }
+        .progress-bar .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.5s ease;
+            border-radius: 12px;
+        }
+        .progress-bar .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 13px;
+            font-weight: bold;
+            color: #333;
+        }
+        .traffic-info {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            font-size: 14px;
+            color: #555;
+        }
+        .sub-info {
+            background: #e8f0fe;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        .sub-info code {
+            background: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        .expire-warning {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+            color: #856404;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+        .empty-state .icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        @media (max-width: 768px) {
+            .dashboard-stats {
+                grid-template-columns: 1fr 1fr;
+            }
+            .sub-box {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div>
+                <h1>📊 داشبورد کاربری</h1>
+                <span style="font-size:14px;opacity:0.8;">خوش آمدید <span id="userName">کاربر</span></span>
+            </div>
+            <button onclick="logout()" class="btn btn-danger">🚪 خروج</button>
+        </header>
+
+        <!-- آمار -->
+        <div class="dashboard-stats" id="statsCards">
+            <div class="stat-card">
+                <div class="number" id="statInbounds">0</div>
+                <div class="label">🔌 اینباندهای فعال</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="statTraffic">0%</div>
+                <div class="label">📊 مصرف ترافیک</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="statExpire">نامحدود</div>
+                <div class="label">📅 تاریخ انقضا</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="statStatus">فعال</div>
+                <div class="label">✅ وضعیت اشتراک</div>
+            </div>
+        </div>
+
+        <!-- لینک ساب‌اسکریپشن -->
+        <div class="card">
+            <h3>🔗 لینک ساب‌اسکریپشن</h3>
+            <div class="sub-box">
+                <code id="subUrl">در حال بارگذاری...</code>
+                <button onclick="copySubUrl()" class="btn btn-primary">📋 کپی</button>
+                <button onclick="refreshSubscription()" class="btn btn-info">🔄 بروزرسانی</button>
+            </div>
+            <div class="sub-info">
+                <small>💡 این لینک را در کلاینت خود وارد کنید تا تمام کانفیگ‌ها را دریافت کنید.</small>
+            </div>
+        </div>
+
+        <!-- ترافیک -->
+        <div class="card">
+            <h3>📊 وضعیت ترافیک</h3>
+            <div class="traffic-info">
+                <span>مصرف شده: <strong id="trafficUsed">0</strong> GB</span>
+                <span>سقف: <strong id="trafficLimit">0</strong> GB</span>
+                <span>باقی‌مانده: <strong id="trafficRemaining">0</strong> GB</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="trafficProgress" style="width:0%"></div>
+                <div class="progress-text" id="trafficPercent">0%</div>
+            </div>
+        </div>
+
+        <!-- وضعیت اشتراک -->
+        <div class="card">
+            <h3>📅 وضعیت اشتراک</h3>
+            <div id="subscriptionStatus">
+                <p>📆 تاریخ انقضا: <span id="expireDate">نامحدود</span></p>
+                <p>✅ وضعیت: <span id="statusBadge" class="protocol-badge vless">فعال</span></p>
+            </div>
+            <div id="expireWarning" class="expire-warning" style="display:none;">
+                ⚠️ اشتراک شما به زودی منقضی می‌شود. لطفاً تمدید کنید.
+            </div>
+        </div>
+
+        <!-- لیست اینباندها -->
+        <div class="card">
+            <h3>🔌 اینباندهای فعال شما</h3>
+            <div id="inboundsList">
+                <div class="empty-state">
+                    <div class="icon">🔌</div>
+                    <p>هیچ اینباندی برای شما ساخته نشده است</p>
+                    <small style="color:#999;">با ادمین تماس بگیرید تا برای شما کانفیگ ایجاد کند</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentUser = null;
+
+        // Check session
+        fetch('/api/auth/session')
+            .then(res => res.json())
+            .then(data => {
+                if (!data.authenticated) {
+                    window.location.href = '/login.html';
+                    return;
+                }
+                currentUser = data;
+                document.getElementById('userName').textContent = data.username || 'کاربر';
+                loadDashboard();
+            });
+
+        function loadDashboard() {
+            // Get users
+            fetch('/api/users')
+                .then(res => res.json())
+                .then(users => {
+                    const user = users.find(u => u.username === currentUser.username);
+                    if (!user) return;
+
+                    // Update stats
+                    const usedGB = (user.traffic_used / 1024 / 1024 / 1024).toFixed(2);
+                    const limitGB = (user.traffic_limit / 1024 / 1024 / 1024).toFixed(2);
+                    const remainingGB = (user.traffic_limit - user.traffic_used) / 1024 / 1024 / 1024;
+                    const percent = (user.traffic_used / user.traffic_limit * 100);
+
+                    document.getElementById('trafficUsed').textContent = usedGB;
+                    document.getElementById('trafficLimit').textContent = limitGB;
+                    document.getElementById('trafficRemaining').textContent = remainingGB.toFixed(2);
+                    document.getElementById('trafficProgress').style.width = Math.min(percent, 100) + '%';
+                    document.getElementById('trafficPercent').textContent = Math.min(percent, 100).toFixed(1) + '%';
+                    document.getElementById('statTraffic').textContent = Math.min(percent, 100).toFixed(0) + '%';
+
+                    // Subscription URL
+                    const subUrl = `${window.location.origin}/sub/${user.subscription_token}`;
+                    document.getElementById('subUrl').textContent = subUrl;
+
+                    // Expire date
+                    if (user.expire_date) {
+                        const expireDate = new Date(user.expire_date);
+                        document.getElementById('expireDate').textContent = expireDate.toLocaleDateString('fa-IR');
+                        document.getElementById('statExpire').textContent = expireDate.toLocaleDateString('fa-IR');
+                        
+                        // Check if expiring soon (7 days)
+                        const daysLeft = (expireDate - new Date()) / (1000 * 60 * 60 * 24);
+                        if (daysLeft < 7 && daysLeft > 0) {
+                            document.getElementById('expireWarning').style.display = 'block';
+                            document.getElementById('expireWarning').innerHTML = 
+                                `⚠️ اشتراک شما در <strong>${Math.ceil(daysLeft)}</strong> روز منقضی می‌شود. لطفاً تمدید کنید.`;
+                        }
+                        if (daysLeft <= 0) {
+                            document.getElementById('statusBadge').textContent = '❌ منقضی شده';
+                            document.getElementById('statusBadge').style.background = '#dc3545';
+                            document.getElementById('statStatus').textContent = 'منقضی';
+                        }
+                    }
+
+                    // Load inbounds
+                    loadInbounds(user.id);
+                    document.getElementById('statInbounds').textContent = 0; // Will be updated
+                })
+                .catch(err => console.error('Error loading user data:', err));
+        }
+
+        function loadInbounds(userId) {
+            fetch('/api/inbounds')
+                .then(res => res.json())
+                .then(inbounds => {
+                    const userInbounds = inbounds.filter(i => i.user_id === userId && i.is_active === 1);
+                    const container = document.getElementById('inboundsList');
+                    
+                    document.getElementById('statInbounds').textContent = userInbounds.length;
+
+                    if (userInbounds.length === 0) {
+                        container.innerHTML = `
+                            <div class="empty-state">
+                                <div class="icon">🔌</div>
+                                <p>هیچ اینباندی برای شما ساخته نشده است</p>
+                                <small style="color:#999;">با ادمین تماس بگیرید تا برای شما کانفیگ ایجاد کند</small>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    const domain = window.location.hostname;
+                    let html = '';
+
+                    userInbounds.forEach(inbound => {
+                        const settings = JSON.parse(inbound.settings || '{}');
+                        const stream = JSON.parse(inbound.stream_settings || '{}');
+                        const tls = JSON.parse(inbound.tls_settings || '{}');
+                        const network = inbound.network_type || 'ws';
+                        
+                        let link = '';
+                        let typeLabel = '';
+                        let securityLabel = '';
+                        let networkLabel = '';
+                        let actions = '';
+
+                        if (inbound.protocol === 'vless') {
+                            typeLabel = 'VLESS';
+                            const security = tls.security || 'none';
+                            
+                            // Security badge
+                            if (security === 'reality') {
+                                securityLabel = '<span class="security-badge reality">Reality</span>';
+                            } else if (security === 'tls') {
+                                securityLabel = '<span class="security-badge tls">TLS</span>';
+                            } else {
+                                securityLabel = '<span class="security-badge none">None</span>';
+                            }
+                            
+                            // Network badge
+                            if (network === 'ws') {
+                                networkLabel = '<span class="network-badge ws">WebSocket</span>';
+                            } else if (network === 'xhttp') {
+                                networkLabel = '<span class="network-badge xhttp">XHTTP</span>';
+                            }
+                            
+                            // Build link
+                            if (network === 'ws') {
+                                link = `vless://${settings.uuid}@${domain}:${inbound.port}?encryption=none&security=${security}&type=ws&host=${stream.wsSettings?.host || domain}&path=${encodeURIComponent(stream.wsSettings?.path || '/vless-ws')}#${encodeURIComponent(inbound.name)}`;
+                            } else if (network === 'xhttp') {
+                                link = `vless://${settings.uuid}@${domain}:${inbound.port}?encryption=none&security=${security}&type=xhttp&host=${stream.xhttpSettings?.host || domain}&path=${encodeURIComponent(stream.xhttpSettings?.path || '/vless-xhttp')}&mode=${stream.xhttpSettings?.mode || 'auto'}#${encodeURIComponent(inbound.name)}`;
+                            } else if (network === 'grpc') {
+                                link = `vless://${settings.uuid}@${domain}:${inbound.port}?encryption=none&security=${security}&type=grpc&serviceName=${encodeURIComponent(stream.grpcSettings?.serviceName || '/vless-grpc')}#${encodeURIComponent(inbound.name)}`;
+                            }
+
+                            actions = `
+                                <button onclick="copyText('${link}')" class="btn btn-primary">📋 کپی</button>
+                                <button onclick="copyV2rayLink('${link}')" class="btn btn-success">📱 کلاینت</button>
+                            `;
+
+                        } else if (inbound.protocol === 'mtproto') {
+                            typeLabel = 'MTProto';
+                            link = `tg://proxy?server=${domain}&port=${inbound.port}&secret=${settings.secret}`;
+                            networkLabel = '<span class="network-badge">Telegram</span>';
+                            actions = `
+                                <button onclick="copyText('${link}')" class="btn btn-primary">📋 کپی</button>
+                                <button onclick="openTelegram('${link}')" class="btn btn-success">🚀 تلگرام</button>
+                            `;
+
+                        } else if (inbound.protocol === 'wireguard') {
+                            typeLabel = 'WireGuard';
+                            const wgConfig = `[Interface]\nPrivateKey = ${settings.client_private_key || 'YOUR_PRIVATE_KEY'}\nAddress = ${settings.client_address || '10.0.0.2/32'}\nDNS = 1.1.1.1\n\n[Peer]\nPublicKey = ${settings.keys?.publicKey || ''}\nAllowedIPs = ${settings.allowed_ips || '0.0.0.0/0'}\nEndpoint = ${domain}:${inbound.port}\nPersistentKeepalive = 25`;
+                            link = wgConfig;
+                            networkLabel = '<span class="network-badge">VPN</span>';
+                            actions = `
+                                <button onclick="copyText('${link}')" class="btn btn-primary">📋 کپی</button>
+                                <button onclick="downloadWireGuardConfig('${link}', '${inbound.name}')" class="btn btn-download">⬇️ دانلود</button>
+                            `;
+                        }
+
+                        html += `
+                            <div class="inbound-item" data-protocol="${inbound.protocol}" data-network="${network}">
+                                <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:10px;">
+                                    <span class="protocol-badge ${inbound.protocol}">${typeLabel}</span>
+                                    ${networkLabel}
+                                    ${securityLabel}
+                                    <span class="inbound-name" style="font-weight:bold;font-size:16px;">${inbound.name}</span>
+                                    <span style="color:#666;font-size:13px;">پورت: ${inbound.port}</span>
+                                </div>
+                                <div class="config-link">${link}</div>
+                                <div class="inbound-actions">
+                                    ${actions}
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    container.innerHTML = html;
+                })
+                .catch(err => {
+                    console.error('Error loading inbounds:', err);
+                    document.getElementById('inboundsList').innerHTML = `
+                        <div class="empty-state">
+                            <div class="icon">❌</div>
+                            <p>خطا در بارگذاری اینباندها</p>
+                        </div>
+                    `;
+                });
+        }
+
+        // Utility functions
+        function copyText(text) {
+            navigator.clipboard.writeText(text)
+                .then(() => {
+                    showToast('✅ کپی شد!', 'success');
+                })
+                .catch(() => {
+                    // Fallback
+                    const textarea = document.createElement('textarea');
+                    textarea.value = text;
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textarea);
+                    showToast('✅ کپی شد!', 'success');
+                });
+        }
+
+        function copySubUrl() {
+            const url = document.getElementById('subUrl').textContent;
+            copyText(url);
+        }
+
+        function copyV2rayLink(link) {
+            copyText(link);
+            showToast('✅ لینک VLESS کپی شد!', 'success');
+        }
+
+        function openTelegram(link) {
+            if (navigator.userAgent.match(/Android|iPhone|iPad/i)) {
+                window.open(link, '_blank');
+            } else {
+                copyText(link);
+                showToast('✅ لینک کپی شد! در تلگرام دسکتاپ استفاده کنید.', 'info');
+            }
+        }
+
+        function downloadWireGuardConfig(config, name) {
+            const blob = new Blob([config], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${name}.conf`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+            showToast('✅ دانلود شروع شد!', 'success');
+        }
+
+        function refreshSubscription() {
+            showToast('🔄 در حال بروزرسانی...', 'info');
+            setTimeout(() => {
+                const url = document.getElementById('subUrl').textContent;
+                if (url && url !== 'در حال بارگذاری...') {
+                    window.open(url, '_blank');
+                }
+                showToast('✅ لینک ساب‌اسکریپشن باز شد!', 'success');
+            }, 500);
+        }
+
+        function logout() {
+            if (confirm('آیا مطمئن هستید که می‌خواهید خارج شوید؟')) {
+                fetch('/api/auth/logout', { method: 'POST' })
+                    .then(() => {
+                        window.location.href = '/login.html';
+                    })
+                    .catch(() => {
+                        window.location.href = '/login.html';
+                    });
+            }
+        }
+
+        // Toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                padding: 15px 25px;
+                border-radius: 8px;
+                color: white;
+                font-weight: bold;
+                z-index: 9999;
+                animation: slideIn 0.3s ease;
+                background: ${type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : '#17a2b8'};
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                max-width: 350px;
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.3s';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Add animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Auto refresh every 30 seconds
+        setInterval(() => {
+            if (currentUser) {
+                loadDashboard();
+            }
+        }, 30000);
+    </script>
+</body>
+</html>
