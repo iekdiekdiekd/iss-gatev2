@@ -95,6 +95,16 @@ app.get('/test-xray', (req, res) => {
     });
 });
 
+// اضافه کنید به server.js
+app.get('/debug-config', (req, res) => {
+    try {
+        const config = fs.readFileSync('/tmp/xray-config.json', 'utf8');
+        res.json(JSON.parse(config));
+    } catch (error) {
+        res.json({ error: error.message });
+    }
+});
+
 // Initialize
 console.log('📊 Initializing database...');
 initDatabase();
@@ -110,7 +120,7 @@ setTimeout(async () => {
 
 app.listen(PORT, () => {
     console.log(`🚀 ISSPanel running on port ${PORT}`);
-    const domain = process.env.RAILWAY_PUBLIC_DOMAIN || `localhost:${PORT}`;
+    const domain = process.env.DOMAIN || process.env.RAILWAY_PUBLIC_DOMAIN || 'localhost';
     console.log(`🔗 Admin Panel: http://${domain}/admin`);
     console.log(`📊 Dashboard: http://${domain}/dashboard`);
     console.log(`🔍 Test Xray: http://${domain}/test-xray`);
