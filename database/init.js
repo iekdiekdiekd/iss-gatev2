@@ -11,8 +11,10 @@ function generateToken() {
 }
 
 function initDatabase() {
+    console.log('📊 Initializing database...');
+    
     db.serialize(() => {
-        // ایجاد جدول کاربران
+        // جدول کاربران
         db.run(`
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -27,9 +29,11 @@ function initDatabase() {
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 last_seen DATETIME
             )
-        `);
+        `, (err) => {
+            if (err) console.error('Error creating users table:', err.message);
+        });
 
-        // ایجاد جدول اینباندها
+        // جدول اینباندها
         db.run(`
             CREATE TABLE IF NOT EXISTS inbounds (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -45,9 +49,11 @@ function initDatabase() {
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
             )
-        `);
+        `, (err) => {
+            if (err) console.error('Error creating inbounds table:', err.message);
+        });
 
-        // ایجاد جدول Reality
+        // جدول Reality
         db.run(`
             CREATE TABLE IF NOT EXISTS reality_settings (
                 inbound_id INTEGER PRIMARY KEY,
@@ -58,7 +64,9 @@ function initDatabase() {
                 fingerprint TEXT,
                 FOREIGN KEY(inbound_id) REFERENCES inbounds(id) ON DELETE CASCADE
             )
-        `);
+        `, (err) => {
+            if (err) console.error('Error creating reality_settings table:', err.message);
+        });
 
         // ایجاد کاربر ادمین
         const adminUsername = process.env.ADMIN_USERNAME || 'admin';
@@ -80,13 +88,13 @@ function initDatabase() {
                         if (err) {
                             console.error('Error creating admin:', err.message);
                         } else {
-                            console.log(`✅ Admin user created: ${adminUsername}`);
+                            console.log(`✅ Admin created: ${adminUsername}`);
                             console.log(`🔑 Password: ${adminPassword}`);
                         }
                     }
                 );
             } else {
-                console.log(`✅ Admin user already exists: ${adminUsername}`);
+                console.log(`✅ Admin exists: ${adminUsername}`);
             }
         });
     });

@@ -14,9 +14,6 @@ RUN npm install --legacy-peer-deps
 
 COPY . .
 
-# اجرای setup به‌صورت جداگانه
-RUN node scripts/setup.js || true
-
 EXPOSE 3000
 EXPOSE 10086-10186
 
