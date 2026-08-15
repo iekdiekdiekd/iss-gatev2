@@ -7,14 +7,14 @@
     "numReplicas": 1,
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10,
-    "healthcheckPath": "/health"
-  },
-  "ports": [
-    { "port": 3000, "protocol": "tcp" },
-    { "port": 10086, "protocol": "tcp" },
-    { "port": 10087, "protocol": "tcp" },
-    { "port": 10088, "protocol": "tcp" },
-    { "port": 10089, "protocol": "tcp" },
-    { "port": 10090, "protocol": "tcp" }
-  ]
+    "ports": [
+      { "port": 3000, "protocol": "tcp" },
+      { "port": 2096, "protocol": "tcp" },
+      { "port": 2097, "protocol": "tcp" },
+      { "port": 2098, "protocol": "tcp" },
+      { "port": 2099, "protocol": "tcp" },
+      { "port": 8443, "protocol": "tcp" },
+      { "port": 8444, "protocol": "tcp" }
+    ]
+  }
 }

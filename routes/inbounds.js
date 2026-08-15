@@ -12,10 +12,10 @@ const fs = require('fs');
 function buildVlessLink({ uuid, domain, port, network, streamSettings, tlsSettings, realityEnabled, tlsEnabled, name }) {
     let link = `vless://${uuid}@${domain}:${port}`;
     const params = [];
-    
+
     // پارامترهای پایه
     params.push('encryption=none');
-    
+
     // امنیت
     if (realityEnabled) {
         params.push('security=reality');
@@ -34,10 +34,10 @@ function buildVlessLink({ uuid, domain, port, network, streamSettings, tlsSettin
     } else {
         params.push('security=none');
     }
-    
+
     // نوع شبکه
     params.push(`type=${network}`);
-    
+
     // تنظیمات مخصوص شبکه
     if (network === 'ws') {
         const wsSettings = streamSettings.wsSettings || {};
@@ -52,14 +52,14 @@ function buildVlessLink({ uuid, domain, port, network, streamSettings, tlsSettin
         const grpcSettings = streamSettings.grpcSettings || {};
         if (grpcSettings.serviceName) params.push(`serviceName=${encodeURIComponent(grpcSettings.serviceName)}`);
     }
-    
+
     link += '?' + params.join('&');
-    const configName = name + 
+    const configName = name +
         (realityEnabled ? '-Reality' : '') +
         (tlsEnabled ? '-TLS' : '') +
         (network === 'ws' ? '-WS' : network === 'xhttp' ? '-XHTTP' : network === 'grpc' ? '-gRPC' : '-TCP');
     link += `#${encodeURIComponent(configName)}`;
-    
+
     return link;
 }
 
@@ -78,7 +78,7 @@ router.get('/', authMiddleware, (req, res) => {
 
 // POST create inbound
 router.post('/', authMiddleware, (req, res) => {
-    const { 
+    const {
         user_id, name, protocol, network_type, port,
         path, host,
         tls_enabled, tls_type, tls_server_name, tls_fingerprint,
@@ -87,26 +87,26 @@ router.post('/', authMiddleware, (req, res) => {
         xhttp_host, xhttp_path, xhttp_mode,
         secret, address, allowed_ips, client_address, flow
     } = req.body;
-    
+
     if (!user_id || !name || !protocol || !port) {
         return res.status(400).json({ error: 'Missing required fields' });
     }
     if (!['vless', 'mtproto', 'wireguard'].includes(protocol)) {
         return res.status(400).json({ error: 'Invalid protocol' });
     }
-    
+
     let settings = {};
     let streamSettings = {};
     let tlsSettings = {};
     let link = '';
     const domain = process.env.DOMAIN || process.env.RAILWAY_PUBLIC_DOMAIN || 'localhost';
-    
+
     if (protocol === 'vless') {
         const uuid = crypto.randomUUID();
         const network = network_type || 'ws';
-        
+
         settings = { uuid, alterId: 0, flow: flow || 'xtls-rprx-vision' };
-        
+
         // تنظیمات شبکه
         if (network === 'ws') {
             streamSettings = {
@@ -136,9 +136,16 @@ router.post('/', authMiddleware, (req, res) => {
         } else {
             streamSettings = { network: 'tcp' };
         }
-        
+
         // TLS
         if (tls_enabled === 'true' || tls_enabled === true) {
+            if (security === 'tls') {
+                data.tls_enabled = true;
+                data.tls_type = 'tls';
+                data.tls_server_name = document.getElementById('tlsServerName').value || window.location.hostname;
+                data.tls_fingerprint = document.getElementById('tlsFingerprint').value;
+                data.tls_alpn = document.getElementById('tlsAlpn').value; // اضافه شد
+            }
             tlsSettings = {
                 security: tls_type || 'tls',
                 tlsSettings: {
@@ -147,18 +154,28 @@ router.post('/', authMiddleware, (req, res) => {
                     allowInsecure: false
                 }
             };
-            streamSettings = { 
-                ...streamSettings, 
-                security: tls_type || 'tls', 
-                tlsSettings: tlsSettings.tlsSettings 
+            streamSettings = {
+                ...streamSettings,
+                security: tls_type || 'tls',
+                tlsSettings: tlsSettings.tlsSettings
             };
+
         }
-        
+
         // Reality
         if (reality_enabled === 'true' || reality_enabled === true) {
             const shortIds = reality_short_ids || crypto.randomBytes(8).toString('hex');
             const privateKey = reality_private_key || crypto.randomBytes(32).toString('base64');
-            
+
+            if (security === 'reality') {
+                data.reality_enabled = true;
+                data.reality_server_name = document.getElementById('realityServerName').value || 'cloudflare.com';
+                data.reality_fingerprint = document.getElementById('realityFingerprint').value;
+                data.reality_public_key = document.getElementById('realityPublicKey').value || '';
+                data.reality_short_ids = document.getElementById('realityShortIds').value || '';
+                data.reality_alpn = document.getElementById('realityAlpn').value; // اضافه شد
+            }
+
             streamSettings = {
                 ...streamSettings,
                 security: 'reality',
@@ -171,7 +188,7 @@ router.post('/', authMiddleware, (req, res) => {
                     show: true
                 }
             };
-            
+
             req.realitySettings = {
                 public_key: reality_public_key || '',
                 private_key: privateKey,
@@ -180,7 +197,7 @@ router.post('/', authMiddleware, (req, res) => {
                 fingerprint: reality_fingerprint || 'chrome'
             };
         }
-        
+
         // ساخت لینک
         link = buildVlessLink({
             uuid, domain, port, network, streamSettings, tlsSettings,
@@ -188,15 +205,15 @@ router.post('/', authMiddleware, (req, res) => {
             tlsEnabled: tls_enabled === 'true' || tls_enabled === true,
             name
         });
-        
+
         console.log('🔗 Generated VLESS link:', link);
-        
+
     } else if (protocol === 'mtproto') {
         const mtprotoSecret = secret || crypto.randomBytes(16).toString('hex');
         settings = { secret: mtprotoSecret };
         link = `tg://proxy?server=${domain}&port=${port}&secret=${mtprotoSecret}`;
         console.log('🔗 Generated MTProto link:', link);
-        
+
     } else if (protocol === 'wireguard') {
         const keys = generateWireGuardKeys();
         const clientPrivateKey = generateWireGuardKeys().privateKey;
@@ -210,21 +227,21 @@ router.post('/', authMiddleware, (req, res) => {
         link = generateWireGuardLink({ ...req.body, settings, name, port }, { username: 'user' });
         console.log('🔗 Generated WireGuard config');
     }
-    
+
     // ذخیره در دیتابیس
     const tlsJSON = JSON.stringify(tlsSettings || {});
     const streamJSON = JSON.stringify(streamSettings || {});
-    
+
     db.run(
         `INSERT INTO inbounds (user_id, name, protocol, network_type, port, settings, stream_settings, tls_settings)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
         [user_id, name, protocol, network_type || 'ws', port, JSON.stringify(settings), streamJSON, tlsJSON],
-        function(err) {
+        function (err) {
             if (err) {
                 console.error('❌ DB Error:', err);
                 return res.status(500).json({ error: err.message });
             }
-            
+
             // ذخیره Reality settings
             if (protocol === 'vless' && req.realitySettings) {
                 const r = req.realitySettings;
@@ -235,7 +252,7 @@ router.post('/', authMiddleware, (req, res) => {
                     [this.lastID, r.public_key, r.private_key, r.short_ids, r.server_name, r.fingerprint]
                 );
             }
-            
+
             // راه‌اندازی Xray یا WireGuard
             if (protocol === 'wireguard') {
                 setupWireGuard({ id: this.lastID, name, port, settings });
@@ -246,7 +263,7 @@ router.post('/', authMiddleware, (req, res) => {
                     setTimeout(() => testConfig(), 1000);
                 });
             }
-            
+
             res.status(201).json({
                 id: this.lastID,
                 user_id,
@@ -267,15 +284,15 @@ router.post('/', authMiddleware, (req, res) => {
 router.delete('/:id', authMiddleware, (req, res) => {
     db.get('SELECT * FROM inbounds WHERE id = ?', [req.params.id], (err, inbound) => {
         if (err || !inbound) return res.status(404).json({ error: 'Not found' });
-        
+
         if (inbound.protocol === 'wireguard') {
             exec(`wg-quick down ${inbound.name}`, () => {
                 const configPath = `/etc/wireguard/${inbound.name}.conf`;
                 if (fs.existsSync(configPath)) fs.unlinkSync(configPath);
             });
         }
-        
-        db.run('DELETE FROM inbounds WHERE id = ?', [req.params.id], function(err) {
+
+        db.run('DELETE FROM inbounds WHERE id = ?', [req.params.id], function (err) {
             if (err) return res.status(500).json({ error: err.message });
             if (inbound.protocol !== 'wireguard') {
                 generateXrayConfig().then(() => restartXray());

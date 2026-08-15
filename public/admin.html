@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,15 +13,27 @@
             gap: 15px;
             margin-bottom: 25px;
         }
+
         .stat-box {
             background: white;
             padding: 15px 20px;
             border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
             text-align: center;
         }
-        .stat-box .num { font-size: 24px; font-weight: bold; color: #667eea; }
-        .stat-box .label { color: #888; font-size: 13px; margin-top: 4px; }
+
+        .stat-box .num {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-box .label {
+            color: #888;
+            font-size: 13px;
+            margin-top: 4px;
+        }
+
         .tabs {
             display: flex;
             gap: 5px;
@@ -28,8 +41,9 @@
             background: white;
             padding: 5px;
             border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
         }
+
         .tab-btn {
             padding: 10px 20px;
             border: none;
@@ -40,37 +54,62 @@
             transition: all 0.3s;
             font-weight: 500;
         }
+
         .tab-btn.active {
             background: #667eea;
             color: white;
         }
+
         .tab-btn:hover:not(.active) {
             background: #f0f0f0;
         }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
         .table-responsive {
             overflow-x: auto;
             background: white;
             border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
         }
-        table { width: 100%; border-collapse: collapse; font-size: 14px; }
-        th { 
-            background: #f8f9fa; 
-            padding: 12px 15px; 
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th {
+            background: #f8f9fa;
+            padding: 12px 15px;
             text-align: right;
             font-weight: 600;
             color: #555;
             border-bottom: 2px solid #dee2e6;
         }
-        td { 
-            padding: 12px 15px; 
+
+        td {
+            padding: 12px 15px;
             border-bottom: 1px solid #e9ecef;
             vertical-align: middle;
         }
-        tr:hover { background: #f8f9fa; }
-        .actions { display: flex; gap: 5px; flex-wrap: wrap; }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .actions {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
         .badge {
             display: inline-block;
             padding: 3px 10px;
@@ -79,17 +118,27 @@
             font-weight: 600;
             color: white;
         }
-        .badge.active { background: #28a745; }
-        .badge.inactive { background: #dc3545; }
+
+        .badge.active {
+            background: #28a745;
+        }
+
+        .badge.inactive {
+            background: #dc3545;
+        }
+
         .modal {
             display: none;
             position: fixed;
             z-index: 1000;
-            left: 0; top: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5);
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
             animation: fadeIn 0.3s ease;
         }
+
         .modal-content {
             background: white;
             margin: 3% auto;
@@ -101,6 +150,7 @@
             overflow-y: auto;
             animation: slideDown 0.3s ease;
         }
+
         .modal-header {
             display: flex;
             justify-content: space-between;
@@ -109,7 +159,12 @@
             border-bottom: 1px solid #dee2e6;
             padding-bottom: 15px;
         }
-        .modal-header h3 { margin: 0; color: #333; }
+
+        .modal-header h3 {
+            margin: 0;
+            color: #333;
+        }
+
         .close {
             font-size: 28px;
             cursor: pointer;
@@ -118,10 +173,15 @@
             background: none;
             border: none;
         }
-        .close:hover { color: #333; }
+
+        .close:hover {
+            color: #333;
+        }
+
         .form-group {
             margin-bottom: 15px;
         }
+
         .form-group label {
             display: block;
             margin-bottom: 5px;
@@ -129,7 +189,9 @@
             color: #555;
             font-size: 14px;
         }
-        .form-group input, .form-group select {
+
+        .form-group input,
+        .form-group select {
             width: 100%;
             padding: 10px 12px;
             border: 2px solid #e9ecef;
@@ -137,16 +199,20 @@
             font-size: 14px;
             transition: all 0.3s;
         }
-        .form-group input:focus, .form-group select:focus {
+
+        .form-group input:focus,
+        .form-group select:focus {
             border-color: #667eea;
             outline: none;
-            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
+
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 15px;
         }
+
         .btn-submit {
             width: 100%;
             padding: 12px;
@@ -159,24 +225,62 @@
             cursor: pointer;
             transition: all 0.3s;
         }
+
         .btn-submit:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102,126,234,0.4);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
         }
-        .btn-submit:active { transform: translateY(0); }
-        .btn { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; transition: all 0.3s; }
-        .btn-primary { background: #667eea; color: white; }
-        .btn-danger { background: #dc3545; color: white; }
-        .btn-success { background: #28a745; color: white; }
-        .btn-warning { background: #ffc107; color: #333; }
-        .btn-sm { padding: 4px 10px; font-size: 11px; }
-        .btn:hover { transform: translateY(-1px); box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        .btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .btn-sm {
+            padding: 4px 10px;
+            font-size: 11px;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
         .header-actions {
             display: flex;
             gap: 10px;
             margin-bottom: 15px;
             flex-wrap: wrap;
         }
+
         .search-box {
             padding: 8px 14px;
             border: 2px solid #e9ecef;
@@ -184,24 +288,45 @@
             font-size: 14px;
             min-width: 200px;
         }
+
         .search-box:focus {
             border-color: #667eea;
             outline: none;
         }
+
         .empty-state {
             text-align: center;
             padding: 40px 20px;
             color: #999;
         }
-        .empty-state .icon { font-size: 40px; margin-bottom: 10px; }
+
+        .empty-state .icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
         @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
         }
+
         @keyframes slideDown {
-            from { transform: translateY(-50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
+
         .toast {
             position: fixed;
             bottom: 20px;
@@ -212,27 +337,71 @@
             font-weight: 500;
             z-index: 9999;
             animation: slideIn 0.3s ease;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
             max-width: 350px;
         }
-        .toast-success { background: #28a745; }
-        .toast-error { background: #dc3545; }
-        .toast-info { background: #17a2b8; }
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
+
+        .toast-success {
+            background: #28a745;
         }
+
+        .toast-error {
+            background: #dc3545;
+        }
+
+        .toast-info {
+            background: #17a2b8;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
         @media (max-width: 768px) {
-            .form-row { grid-template-columns: 1fr; }
-            .admin-stats { grid-template-columns: 1fr 1fr; }
-            .tabs { flex-wrap: wrap; }
-            .tab-btn { flex: 1; text-align: center; font-size: 12px; padding: 8px 10px; }
-            table { font-size: 12px; }
-            th, td { padding: 8px 10px; }
-            .modal-content { margin: 10%; padding: 20px; }
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .admin-stats {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .tabs {
+                flex-wrap: wrap;
+            }
+
+            .tab-btn {
+                flex: 1;
+                text-align: center;
+                font-size: 12px;
+                padding: 8px 10px;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th,
+            td {
+                padding: 8px 10px;
+            }
+
+            .modal-content {
+                margin: 10%;
+                padding: 20px;
+            }
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <header>
@@ -276,7 +445,8 @@
         <div id="usersTab" class="tab-content active">
             <div class="header-actions">
                 <button onclick="showAddUser()" class="btn btn-primary">➕ افزودن کاربر</button>
-                <input type="text" class="search-box" id="userSearch" placeholder="🔍 جستجوی کاربر..." onkeyup="filterUsers()">
+                <input type="text" class="search-box" id="userSearch" placeholder="🔍 جستجوی کاربر..."
+                    onkeyup="filterUsers()">
             </div>
             <div class="table-responsive">
                 <table>
@@ -301,7 +471,8 @@
         <div id="inboundsTab" class="tab-content">
             <div class="header-actions">
                 <button onclick="showAddInbound()" class="btn btn-primary">➕ افزودن اینباند</button>
-                <input type="text" class="search-box" id="inboundSearch" placeholder="🔍 جستجوی اینباند..." onkeyup="filterInbounds()">
+                <input type="text" class="search-box" id="inboundSearch" placeholder="🔍 جستجوی اینباند..."
+                    onkeyup="filterInbounds()">
             </div>
             <div class="table-responsive">
                 <table>
@@ -414,7 +585,7 @@
             const total = users.length;
             const active = users.filter(u => u.is_active).length;
             const totalTraffic = users.reduce((sum, u) => sum + u.traffic_used, 0) / 1073741824;
-            
+
             document.getElementById('totalUsers').textContent = total;
             document.getElementById('activeUsers').textContent = active;
             document.getElementById('totalTraffic').textContent = totalTraffic.toFixed(1);
@@ -451,12 +622,12 @@
             tbody.innerHTML = inbounds.map(inbound => {
                 const settings = JSON.parse(inbound.settings || '{}');
                 const network = inbound.network_type || 'ws';
-                const protocolLabel = inbound.protocol === 'vless' ? 'VLESS' : 
-                                     inbound.protocol === 'mtproto' ? 'MTProto' : 'WireGuard';
-                const networkLabel = network === 'ws' ? 'WS' : 
-                                    network === 'xhttp' ? 'XHTTP' : 
-                                    network === 'grpc' ? 'gRPC' : 'TCP';
-                
+                const protocolLabel = inbound.protocol === 'vless' ? 'VLESS' :
+                    inbound.protocol === 'mtproto' ? 'MTProto' : 'WireGuard';
+                const networkLabel = network === 'ws' ? 'WS' :
+                    network === 'xhttp' ? 'XHTTP' :
+                        network === 'grpc' ? 'gRPC' : 'TCP';
+
                 return `
                     <tr>
                         <td><strong>${inbound.name}</strong></td>
@@ -536,20 +707,20 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
             })
-            .then(res => res.json())
-            .then(data => {
-                if (data.error) {
-                    showToast('❌ ' + data.error, 'error');
-                    return;
-                }
-                closeModal();
-                showToast('✅ کاربر با موفقیت ایجاد شد!', 'success');
-                loadUsers();
-            })
-            .catch(err => {
-                showToast('❌ خطا در ایجاد کاربر', 'error');
-                console.error(err);
-            });
+                .then(res => res.json())
+                .then(data => {
+                    if (data.error) {
+                        showToast('❌ ' + data.error, 'error');
+                        return;
+                    }
+                    closeModal();
+                    showToast('✅ کاربر با موفقیت ایجاد شد!', 'success');
+                    loadUsers();
+                })
+                .catch(err => {
+                    showToast('❌ خطا در ایجاد کاربر', 'error');
+                    console.error(err);
+                });
         }
 
         function deleteUser(id) {
@@ -570,11 +741,11 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ is_active: currentStatus ? 0 : 1 })
             })
-            .then(() => {
-                showToast(`✅ کاربر ${currentStatus ? 'غیرفعال' : 'فعال'} شد`, 'success');
-                loadUsers();
-            })
-            .catch(() => showToast('❌ خطا در تغییر وضعیت', 'error'));
+                .then(() => {
+                    showToast(`✅ کاربر ${currentStatus ? 'غیرفعال' : 'فعال'} شد`, 'success');
+                    loadUsers();
+                })
+                .catch(() => showToast('❌ خطا در تغییر وضعیت', 'error'));
         }
 
         function resetTraffic(id) {
@@ -591,7 +762,7 @@
         function showAddInbound() {
             const modalBody = document.getElementById('modalBody');
             document.getElementById('modalTitle').textContent = '🔌 افزودن اینباند جدید';
-            
+
             // First load users for dropdown
             fetch('/api/users')
                 .then(res => res.json())
@@ -681,45 +852,65 @@
                                 </select>
                             </div>
                             <div id="tlsFields" style="display:none;">
-                                <div class="form-group">
-                                    <label>Server Name (SNI)</label>
-                                    <input id="tlsServerName" placeholder="${window.location.hostname}">
-                                </div>
-                                <div class="form-group">
-                                    <label>Fingerprint</label>
-                                    <select id="tlsFingerprint">
-                                        <option value="chrome">Chrome</option>
-                                        <option value="firefox">Firefox</option>
-                                        <option value="safari">Safari</option>
-                                        <option value="edge">Edge</option>
-                                        <option value="random">Random</option>
-                                    </select>
-                                </div>
-                            </div>
+    <div class="form-group">
+        <label>Server Name (SNI)</label>
+        <input id="tlsServerName" placeholder="${window.location.hostname}">
+    </div>
+    <div class="form-group">
+        <label>Fingerprint</label>
+        <select id="tlsFingerprint">
+            <option value="chrome">Chrome</option>
+            <option value="firefox">Firefox</option>
+            <option value="safari">Safari</option>
+            <option value="edge">Edge</option>
+            <option value="random">Random</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label>ALPN (Application-Layer Protocol Negotiation)</label>
+        <select id="tlsAlpn">
+            <option value="h2,http/1.1">h2, http/1.1 (پیش‌فرض)</option>
+            <option value="h2">h2 فقط</option>
+            <option value="http/1.1">http/1.1 فقط</option>
+            <option value="h2,http/1.1,http/1.0">h2, http/1.1, http/1.0</option>
+        </select>
+        <small style="color:#666;">💡 h2 برای HTTP/2 و http/1.1 برای HTTP/1.1</small>
+    </div>
+</div>
                             <div id="realityFields" style="display:none;">
-                                <div class="form-group">
-                                    <label>Server Name (SNI)</label>
-                                    <input id="realityServerName" value="cloudflare.com">
-                                </div>
-                                <div class="form-group">
-                                    <label>Fingerprint</label>
-                                    <select id="realityFingerprint">
-                                        <option value="chrome">Chrome</option>
-                                        <option value="firefox">Firefox</option>
-                                        <option value="safari">Safari</option>
-                                        <option value="edge">Edge</option>
-                                        <option value="random">Random</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label>Public Key (اختیاری)</label>
-                                    <input id="realityPublicKey" placeholder="در صورت خالی خودکار تولید می‌شود">
-                                </div>
-                                <div class="form-group">
-                                    <label>Short IDs (با کاما جدا کنید)</label>
-                                    <input id="realityShortIds" placeholder="abc123,def456">
-                                </div>
-                            </div>
+    <div class="form-group">
+        <label>Server Name (SNI)</label>
+        <input id="realityServerName" value="cloudflare.com">
+    </div>
+    <div class="form-group">
+        <label>Fingerprint</label>
+        <select id="realityFingerprint">
+            <option value="chrome">Chrome</option>
+            <option value="firefox">Firefox</option>
+            <option value="safari">Safari</option>
+            <option value="edge">Edge</option>
+            <option value="random">Random</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label>ALPN (Application-Layer Protocol Negotiation)</label>
+        <select id="realityAlpn">
+            <option value="h2,http/1.1">h2, http/1.1 (پیش‌فرض)</option>
+            <option value="h2">h2 فقط</option>
+            <option value="http/1.1">http/1.1 فقط</option>
+            <option value="h2,http/1.1,http/1.0">h2, http/1.1, http/1.0</option>
+        </select>
+        <small style="color:#666;">💡 برای Reality، بهتر است از h2,http/1.1 استفاده کنید</small>
+    </div>
+    <div class="form-group">
+        <label>Public Key (اختیاری)</label>
+        <input id="realityPublicKey" placeholder="در صورت خالی خودکار تولید می‌شود">
+    </div>
+    <div class="form-group">
+        <label>Short IDs (با کاما جدا کنید)</label>
+        <input id="realityShortIds" placeholder="abc123,def456">
+    </div>
+</div>
                         </div>
                         <div id="mtprotoFields" style="display:none;">
                             <div class="form-group">
@@ -787,11 +978,25 @@
                 showToast('❌ پورت معتبر وارد کنید', 'error');
                 return;
             }
+            if (security === 'tls') {
+                data.tls_enabled = true;
+                data.tls_type = 'tls';
+                data.tls_server_name = document.getElementById('tlsServerName').value || window.location.hostname;
+                data.tls_fingerprint = document.getElementById('tlsFingerprint').value;
+                data.tls_alpn = document.getElementById('tlsAlpn').value; // اضافه شد
+            } else if (security === 'reality') {
+                data.reality_enabled = true;
+                data.reality_server_name = document.getElementById('realityServerName').value || 'cloudflare.com';
+                data.reality_fingerprint = document.getElementById('realityFingerprint').value;
+                data.reality_public_key = document.getElementById('realityPublicKey').value || '';
+                data.reality_short_ids = document.getElementById('realityShortIds').value || '';
+                data.reality_alpn = document.getElementById('realityAlpn').value; // اضافه شد
+            }
 
             if (data.protocol === 'vless') {
                 data.network_type = document.getElementById('networkType').value;
                 data.flow = document.getElementById('flow').value;
-                
+
                 if (data.network_type === 'ws') {
                     data.path = document.getElementById('wsPath').value;
                     data.host = document.getElementById('wsHost').value || window.location.hostname;
@@ -830,20 +1035,20 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
             })
-            .then(res => res.json())
-            .then(data => {
-                if (data.error) {
-                    showToast('❌ ' + data.error, 'error');
-                    return;
-                }
-                closeModal();
-                showToast('✅ اینباند با موفقیت ایجاد شد!', 'success');
-                loadInbounds();
-            })
-            .catch(err => {
-                showToast('❌ خطا در ایجاد اینباند', 'error');
-                console.error(err);
-            });
+                .then(res => res.json())
+                .then(data => {
+                    if (data.error) {
+                        showToast('❌ ' + data.error, 'error');
+                        return;
+                    }
+                    closeModal();
+                    showToast('✅ اینباند با موفقیت ایجاد شد!', 'success');
+                    loadInbounds();
+                })
+                .catch(err => {
+                    showToast('❌ خطا در ایجاد اینباند', 'error');
+                    console.error(err);
+                });
         }
 
         function deleteInbound(id) {
@@ -862,17 +1067,17 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ is_active: currentStatus ? 0 : 1 })
             })
-            .then(() => {
-                showToast(`✅ اینباند ${currentStatus ? 'غیرفعال' : 'فعال'} شد`, 'success');
-                loadInbounds();
-            })
-            .catch(() => showToast('❌ خطا در تغییر وضعیت', 'error'));
+                .then(() => {
+                    showToast(`✅ اینباند ${currentStatus ? 'غیرفعال' : 'فعال'} شد`, 'success');
+                    loadInbounds();
+                })
+                .catch(() => showToast('❌ خطا در تغییر وضعیت', 'error'));
         }
 
         // ---- Filters ----
         function filterUsers() {
             const search = document.getElementById('userSearch').value.toLowerCase();
-            const filtered = usersData.filter(u => 
+            const filtered = usersData.filter(u =>
                 u.username.toLowerCase().includes(search) ||
                 (u.email && u.email.toLowerCase().includes(search))
             );
@@ -881,7 +1086,7 @@
 
         function filterInbounds() {
             const search = document.getElementById('inboundSearch').value.toLowerCase();
-            const filtered = inboundsData.filter(i => 
+            const filtered = inboundsData.filter(i =>
                 i.name.toLowerCase().includes(search) ||
                 (i.owner_username && i.owner_username.toLowerCase().includes(search))
             );
@@ -894,7 +1099,7 @@
         }
 
         // Close modal on outside click
-        window.onclick = function(event) {
+        window.onclick = function (event) {
             if (event.target === document.getElementById('modal')) {
                 closeModal();
             }
@@ -927,4 +1132,5 @@
         }, 30000);
     </script>
 </body>
+
 </html>

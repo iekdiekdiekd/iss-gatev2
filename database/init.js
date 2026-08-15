@@ -62,6 +62,7 @@ function initDatabase() {
                 short_ids TEXT,
                 server_name TEXT,
                 fingerprint TEXT,
+                alpn TEXT,  // اضافه شد
                 FOREIGN KEY(inbound_id) REFERENCES inbounds(id) ON DELETE CASCADE
             )
         `, (err) => {
